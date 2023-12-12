@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="description" content="Car Detailing information">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="images/site.webmanifest">
+  <title>Odd Animals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400&family=Source+Sans+Pro:wght@200&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+  <div class="hero">
+    <picture>
+      <source srcset="images/detailing.jpg">
+      <img src="images/detailing.jpg" alt="detailed interior">
+    </picture>
+    <div class="hero-text">
+      <h1>Mitch's Car Detailing</h1>
+      <p>Great Work Every Time</p>
+    </div>
+  </div>
+  <header class="first_page">
+    <div class="menu-icon">
+      <svg viewbox="0 0 60 60">
+        <line x1="5%" y1="50%" x2="95%" y2="50%" />
+        <line x1="5%" y1="50%" x2="95%" y2="50%" />
+      </svg>
+    </div>
+
+    <nav>
+      <ul>
+        <li><a>Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Visit</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="services-container">
+    <h2>Our Services</h2>
+    <div id="table-container"></div>
+  </div>
+  <article class="panel">
+    <div class="text-wrapper">
+      <h2>Add A Service</h2>
+      <p>This link will allow you to add an additional service that you think we should consider:
+      </p>
+      <a href="https://airtable.com/appyuNMG8VNE3Jvdu/pagUxqXe4jARkapML/form" class="button">New Service</a>
+    </div>
+    <div class="image-wrapper left">
+      <img src="images/detailing-service.jpg" alt="headlight cleaning" width="600" height="400">
+    </div>
+  </article>
+  </main>
+
+  <footer>
+    <p>Mitch's Car Detailing</p>
+  </footer>
+  <script>
+    // Replace 'YOUR_API_KEY' and 'YOUR_BASE_ID' with your actual API key and base ID
+    const apiKey = 'patEirNxdMUL8M9ya.490e8b6212d3ed8289c891491aa9654b7925dfd7c72f7d783a5a94b7d33a672e';
+    const baseId = 'appyuNMG8VNE3Jvdu';
+    const tableUrl = `https://api.airtable.com/v0/${baseId}/Service`;
+
+    const fieldOrder = ['Name', 'Description', 'Price', 'Time'];
+
+    // List of fields to exclude from the display
+    const excludedFields = ['record_id', 'Appointment Service', 'Technician'];
+
+    fetch(tableUrl, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        const tableContainer = document.getElementById('table-container');
+        const table = document.createElement('table');
+
+        // Create header row
+        const headerRow = document.createElement('tr');
+        fieldOrder.forEach(fieldName => {
+          // Check if the field is not in the excluded list
+          if (!excludedFields.includes(fieldName)) {
+            const th = document.createElement('th');
+            th.textContent = fieldName;
+            headerRow.appendChild(th);
+          }
+        });
+        table.appendChild(headerRow);
+
+        // Create data rows
+        data.records.forEach(record => {
+          const dataRow = document.createElement('tr');
+
+          // Iterate over each field in the desired order
+          fieldOrder.forEach(fieldName => {
+            // Check if the field is not in the excluded list
+            if (!excludedFields.includes(fieldName)) {
+              const td = document.createElement('td');
+
+              // Format currency field
+              if (fieldName === 'Price') {
+                td.textContent = '$' + record.fields[fieldName].toFixed(0);
+              }
+              // Format time duration field
+              else if (fieldName === 'Time') {
+                td.textContent = formatDuration(record.fields[fieldName]);
+              }
+              // Display other fields as is
+              else {
+                td.textContent = record.fields[fieldName];
+              }
+
+              dataRow.appendChild(td);
+            }
+          });
+
+          table.appendChild(dataRow);
+        });
+
+        tableContainer.appendChild(table);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+
+    // Function to format time duration
+    function formatDuration(durationInMinutes) {
+      const hours = Math.floor(durationInMinutes / 60);
+      const minutes = durationInMinutes % 60;
+      return `${hours} min`;
+    }
+  </script>
+
+</body>
+
+</html>
